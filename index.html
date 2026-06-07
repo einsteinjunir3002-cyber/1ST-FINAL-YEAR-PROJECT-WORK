@@ -10,7 +10,7 @@
   <!-- Stylesheets -->
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body data-theme="dark">
+<body data-theme="light">
 
   <!-- ==========================================================================
        1. HERO LANDING HOMEPAGE SHELL
@@ -31,9 +31,9 @@
           <li><a href="#announcements" class="nav-link" onclick="closeLandingMenu()">Announcements</a></li>
         </ul>
         <div class="header-actions">
-          <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
-          <button class="btn btn-primary btn-sm" onclick="openAuthModal()">Enter Portal 🚀</button>
-          <button class="action-icon-btn mobile-only" onclick="toggleLandingMenu()" style="display: none; font-size: 1.25rem;">☰</button>
+          <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">🌙</button>
+          <button class="btn btn-primary btn-sm" onclick="openAuthModal()" title="Open the portal authentication sign-in and sign-up form">Enter Portal 🚀</button>
+          <button class="action-icon-btn mobile-only" onclick="toggleLandingMenu()" style="display: none; font-size: 1.25rem;" title="Toggle landing page mobile menu">☰</button>
         </div>
       </div>
     </header>
@@ -48,7 +48,7 @@
             An intelligent Learning Management System designed to accelerate research, explain past questions, recommend university majors, predict GPA progression, and bridge students directly with lecturers.
           </p>
           <div class="hero-cta">
-            <button class="btn btn-primary" onclick="openAuthModal()">Enter SmartLearn Portal 🚀</button>
+            <button class="btn btn-primary" onclick="openAuthModal()" title="Access the student or lecturer workspace portal">Enter SmartLearn Portal 🚀</button>
           </div>
         </div>
         <div class="hero-graphic">
@@ -271,60 +271,66 @@
       <nav class="sidebar-nav">
         
         <!-- STUDENT CHANNELS -->
-        <div class="sidebar-nav-item active student-only" data-tab="student-dashboard" onclick="switchTab('student', 'student-dashboard')">
+        <div class="sidebar-nav-item active student-only" data-tab="student-dashboard" onclick="switchTab('student', 'student-dashboard')" title="View current grades, GPA predictions, study plans, and class roster status">
           📊 Dashboard Overview
         </div>
-        <div class="sidebar-nav-item student-only" data-tab="student-courses" onclick="switchTab('student', 'student-courses')">
+        <div class="sidebar-nav-item student-only" data-tab="student-courses" onclick="switchTab('student', 'student-courses')" title="Access registered lectures and download note slides">
           📚 Courses & Notes
         </div>
-        <div class="sidebar-nav-item student-only" data-tab="student-assignments" onclick="switchTab('student', 'student-assignments')">
+        <div class="sidebar-nav-item student-only" data-tab="student-assignments" onclick="switchTab('student', 'student-assignments')" title="View deadlines and submit final course assignments">
           📤 Assignment Submission
         </div>
-        <div class="sidebar-nav-item student-only" data-tab="student-ai-assistant" onclick="switchTab('student', 'student-ai-assistant')">
+        <div class="sidebar-nav-item student-only" data-tab="student-ai-assistant" onclick="switchTab('student', 'student-ai-assistant')" title="Chat with AI Study, Career, Assignment or Programming tutors">
           🤖 AI Academic Chat
         </div>
-        <div class="sidebar-nav-item student-only" data-tab="student-past-questions" onclick="switchTab('student', 'student-past-questions')">
+        <div class="sidebar-nav-item student-only" data-tab="student-past-questions" onclick="switchTab('student', 'student-past-questions')" title="Search past questions and get step-by-step AI answers">
           📂 Past Question Explainer
         </div>
-        <div class="sidebar-nav-item student-only" data-tab="student-career-guidance" onclick="switchTab('student', 'student-career-guidance')">
+        <div class="sidebar-nav-item student-only" data-tab="student-career-guidance" onclick="switchTab('student', 'student-career-guidance')" title="Take the career matching quiz and view tertiary recommendations">
           🎯 Career & Unis Finder
         </div>
-        <div class="sidebar-nav-item student-only" data-tab="student-programs" onclick="switchTab('student', 'student-programs')">
+        <div class="sidebar-nav-item student-only" data-tab="student-programs" onclick="switchTab('student', 'student-programs')" title="Explore BSc major course requirements and job markets in Ghana">
           🎓 Program Selection
         </div>
-        <div class="sidebar-nav-item student-only" data-tab="student-universities" onclick="switchTab('student', 'student-universities')">
+        <div class="sidebar-nav-item student-only" data-tab="student-universities" onclick="switchTab('student', 'student-universities')" title="Browse admission guidelines and tuition fee estimates for public/private universities">
           🏛️ Ghana Universities
         </div>
-        <div class="sidebar-nav-item student-only" data-tab="student-contacts" onclick="switchTab('student', 'student-contacts')">
+        <div class="sidebar-nav-item student-only" data-tab="student-contacts" onclick="switchTab('student', 'student-contacts')" title="Directly message course instructors or book live consultations">
           📞 Contact Faculty
         </div>
-        <div class="sidebar-nav-item student-only" data-tab="student-timetable" onclick="switchTab('student', 'student-timetable')">
+        <div class="sidebar-nav-item student-only" data-tab="student-timetable" onclick="switchTab('student', 'student-timetable')" title="View upcoming scheduled classes and term reminders">
           📅 Timetable & Planner
         </div>
-        <div class="sidebar-nav-item student-only" data-tab="student-forum" onclick="switchTab('student', 'student-forum')">
+        <div class="sidebar-nav-item student-only" data-tab="student-forum" onclick="switchTab('student', 'student-forum')" title="Engage in community study groups and post academic threads">
           💬 Discussion Forum
+        </div>
+        <div class="sidebar-nav-item student-only" data-tab="student-settings" onclick="switchTab('student', 'student-settings')" title="Manage your student account, choose a username, and upload your profile picture">
+          ⚙️ Profile Settings
         </div>
 
         <!-- LECTURER CHANNELS -->
-        <div class="sidebar-nav-item active lecturer-only" data-tab="lecturer-dashboard" onclick="switchTab('lecturer', 'lecturer-dashboard')">
+        <div class="sidebar-nav-item active lecturer-only" data-tab="lecturer-dashboard" onclick="switchTab('lecturer', 'lecturer-dashboard')" title="Monitor student performance analytics and enrollment roster lists">
           📊 Lecturer Dashboard
         </div>
-        <div class="sidebar-nav-item lecturer-only" data-tab="lecturer-materials" onclick="switchTab('lecturer', 'lecturer-materials')">
+        <div class="sidebar-nav-item lecturer-only" data-tab="lecturer-materials" onclick="switchTab('lecturer', 'lecturer-materials')" title="Upload new course note PDF slides for students">
           📤 Upload Lecture Notes
         </div>
-        <div class="sidebar-nav-item lecturer-only" data-tab="lecturer-assignments" onclick="switchTab('lecturer', 'lecturer-assignments')">
+        <div class="sidebar-nav-item lecturer-only" data-tab="lecturer-assignments" onclick="switchTab('lecturer', 'lecturer-assignments')" title="Publish assignments, guidelines, and set deadline calendar alerts">
           📝 Create Assignment
         </div>
-        <div class="sidebar-nav-item lecturer-only" data-tab="lecturer-grading" onclick="switchTab('lecturer', 'lecturer-grading')">
+        <div class="sidebar-nav-item lecturer-only" data-tab="lecturer-grading" onclick="switchTab('lecturer', 'lecturer-grading')" title="Evaluate and grade student task submissions and view AI plagiarism screenings">
           💯 Grade Submissions
+        </div>
+        <div class="sidebar-nav-item lecturer-only" data-tab="lecturer-settings" onclick="switchTab('lecturer', 'lecturer-settings')" title="Manage your lecturer account, choose a username, and upload your profile picture">
+          ⚙️ Profile Settings
         </div>
 
       </nav>
 
       <!-- Sidebar Footer -->
       <div class="sidebar-footer">
-        <button class="btn btn-secondary btn-sm" style="width: 100%; margin-bottom: 8px; font-weight: 700;" onclick="enrollPrototypeBiometrics()">🔑 Setup Device Biometrics</button>
-        <button class="btn btn-secondary btn-sm" style="width: 100%;" onclick="handlePrototypeLogout()">🚪 Log Out</button>
+        <button class="btn btn-secondary btn-sm" style="width: 100%; margin-bottom: 8px; font-weight: 700;" onclick="enrollPrototypeBiometrics()" title="Link this device for secure cryptographic biometric sign-ins">🔑 Setup Device Biometrics</button>
+        <button class="btn btn-secondary btn-sm" style="width: 100%;" onclick="handlePrototypeLogout()" title="Log out from your current portal session and return to landing page">🚪 Log Out</button>
       </div>
     </aside>
 
@@ -333,7 +339,7 @@
       
       <!-- Top Action Navigation Bar -->
       <div class="portal-navbar">
-        <button class="action-icon-btn mobile-only" id="sidebar-toggle-btn" onclick="toggleMobileSidebar()" style="display: none; margin-right: 12px; font-size: 1.25rem;">
+        <button class="action-icon-btn mobile-only" id="sidebar-toggle-btn" onclick="toggleMobileSidebar()" style="display: none; margin-right: 12px; font-size: 1.25rem;" title="Toggle portal sidebar navigation">
           ☰
         </button>
         <div class="portal-search-bar">
@@ -344,10 +350,10 @@
           <!-- Role Switcher Container -->
           <div id="portal-role-switcher-container" style="display:inline-block; margin-right:12px;"></div>
           
-          <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
+          <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">🌙</button>
           
           <!-- Notifications Bell -->
-          <button class="action-icon-btn" onclick="alert('Viewing Alerts: New note uploaded by Dr. Kwame Mensah!')">
+          <button class="action-icon-btn" onclick="alert('Viewing Alerts: New note uploaded by Dr. Kwame Mensah!')" title="View latest alerts and updates">
             🔔 <span class="notification-dot"></span>
           </button>
         </div>
@@ -1050,6 +1056,56 @@
         </div>
       </section>
 
+      <!-- View 7F: Student Settings & Profile -->
+      <section id="student-settings" class="portal-view student-view">
+        <h2>⚙️ Profile <span class="gradient-text">Settings</span></h2>
+        <p style="color:var(--text-muted); margin-bottom: 24px;">Manage your account details, choose a unique username, upload your profile picture, and configure other student options.</p>
+        
+        <div class="dashboard-grid">
+          <!-- Left Column - Details Form -->
+          <div class="widget glass">
+            <h3>Update Profile Information</h3>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:20px;">Keep your student portal name, username, and identifiers updated.</p>
+            
+            <form id="student-settings-form" onsubmit="event.preventDefault(); saveUserSettings('student');">
+              <div class="form-group">
+                <label>Academic Name</label>
+                <input type="text" id="settings-student-name" class="form-control" placeholder="Full Name" required>
+              </div>
+              <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="settings-student-username" class="form-control" placeholder="Choose a username (e.g. kofimensah99)" required>
+              </div>
+              <div class="form-group">
+                <label>Department</label>
+                <input type="text" id="settings-student-dept" class="form-control" placeholder="Department name">
+              </div>
+              <div class="form-group">
+                <label>Student ID Number</label>
+                <input type="text" id="settings-student-idnum" class="form-control" placeholder="ID Number">
+              </div>
+              <button type="submit" class="btn btn-primary" style="margin-top:16px;" title="Click to save your updated profile details">Save Changes 💾</button>
+            </form>
+          </div>
+
+          <!-- Right Column - Picture & Account Settings -->
+          <div class="widget glass" style="text-align:center;">
+            <h3>Profile Picture</h3>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:20px;">Upload a photo for identification in the portal classes.</p>
+            
+            <div style="margin:0 auto 20px; width:120px; height:120px; border-radius:50%; overflow:hidden; border:4px solid var(--primary); background:rgba(0,0,0,0.1); display:flex; align-items:center; justify-content:center;">
+              <img id="settings-student-avatar-preview" src="picture/avatar_student.jpg" alt="Preview" style="width:100%; height:100%; object-fit:cover;">
+            </div>
+            
+            <div class="form-group">
+              <input type="file" id="settings-student-avatar-file" accept="image/*" style="display:none;" onchange="handleAvatarUpload(this, 'student')">
+              <button class="btn btn-secondary btn-sm" onclick="document.getElementById('settings-student-avatar-file').click()" title="Select an image file from your device">Upload New Image 📸</button>
+            </div>
+            <p style="font-size:0.75rem; color:var(--text-light); margin-top:8px;">Supported formats: JPG, PNG, GIF. Max file size: 5 MB.</p>
+          </div>
+        </div>
+      </section>
+
 
       <!-- ==========================================================================
            2B. LECTURER VIEWS
@@ -1198,6 +1254,52 @@
         <h3 style="margin-bottom:16px;">Submissions Awaiting Evaluation</h3>
         <div id="lecturer-submissions-list">
           <!-- Dynamically populated from JS -->
+        </div>
+      </section>
+
+      <!-- View 12: Lecturer Settings & Profile -->
+      <section id="lecturer-settings" class="portal-view lecturer-view">
+        <h2>⚙️ Profile <span class="gradient-text">Settings</span></h2>
+        <p style="color:var(--text-muted); margin-bottom: 24px;">Manage your teaching credentials, office coordinates, and custom profile photo.</p>
+        
+        <div class="dashboard-grid">
+          <!-- Left Column - Details Form -->
+          <div class="widget glass">
+            <h3>Update Lecturer Profile</h3>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:20px;">Keep your office hours and class coordinates updated for students.</p>
+            
+            <form id="lecturer-settings-form" onsubmit="event.preventDefault(); saveUserSettings('lecturer');">
+              <div class="form-group">
+                <label>Academic Name</label>
+                <input type="text" id="settings-lecturer-name" class="form-control" placeholder="Full Name" required>
+              </div>
+              <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="settings-lecturer-username" class="form-control" placeholder="Choose a username" required>
+              </div>
+              <div class="form-group">
+                <label>Office Location</label>
+                <input type="text" id="settings-lecturer-office" class="form-control" placeholder="E.g. Block C, Rm 4">
+              </div>
+              <button type="submit" class="btn btn-primary" style="margin-top:16px;" title="Save your updated lecturer settings and username details">Save Changes 💾</button>
+            </form>
+          </div>
+
+          <!-- Right Column - Picture -->
+          <div class="widget glass" style="text-align:center;">
+            <h3>Lecturer Profile Photo</h3>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:20px;">Upload a professional face profile photo for student recognition.</p>
+            
+            <div style="margin:0 auto 20px; width:120px; height:120px; border-radius:50%; overflow:hidden; border:4px solid var(--primary); background:rgba(0,0,0,0.1); display:flex; align-items:center; justify-content:center;">
+              <img id="settings-lecturer-avatar-preview" src="picture/avatar_lecturer.jpg" alt="Preview" style="width:100%; height:100%; object-fit:cover;">
+            </div>
+            
+            <div class="form-group">
+              <input type="file" id="settings-lecturer-avatar-file" accept="image/*" style="display:none;" onchange="handleAvatarUpload(this, 'lecturer')">
+              <button class="btn btn-secondary btn-sm" onclick="document.getElementById('settings-lecturer-avatar-file').click()" title="Select an image file from your device">Upload New Image 📸</button>
+            </div>
+            <p style="font-size:0.75rem; color:var(--text-light); margin-top:8px;">Supported formats: JPG, PNG, GIF. Max file size: 5 MB.</p>
+          </div>
         </div>
       </section>
 

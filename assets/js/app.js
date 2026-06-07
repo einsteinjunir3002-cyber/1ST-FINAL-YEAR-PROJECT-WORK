@@ -5,7 +5,7 @@
 
 // Global State Object
 const appState = {
-  theme: 'dark', // Default dark mode
+  theme: 'light', // Default light mode
   currentView: 'landing-shell', // 'landing-shell', 'student-portal', 'lecturer-portal'
   activeStudentTab: 'student-dashboard',
   activeLecturerTab: 'lecturer-dashboard',
@@ -544,9 +544,7 @@ function navigateTo(shellId) {
   
   // Reset navigation states if shifting to portal
   if (shellId === 'portal-shell') {
-    if (appState.theme === 'dark') {
-      document.body.setAttribute('data-theme', 'dark');
-    }
+    document.body.setAttribute('data-theme', appState.theme);
     // Update Sidebar details based on role
     updateSidebarDetails();
     renderStateData();
@@ -570,8 +568,14 @@ function switchTab(role, tabId) {
   
   if (role === 'student') {
     appState.activeStudentTab = tabId;
+    if (tabId === 'student-settings') {
+      prepopulateUserSettings('student');
+    }
   } else {
     appState.activeLecturerTab = tabId;
+    if (tabId === 'lecturer-settings') {
+      prepopulateUserSettings('lecturer');
+    }
   }
 
   // Close sidebar on mobile after choosing item
@@ -1211,15 +1215,18 @@ function updateSidebarDetails() {
   
   if (!appState.user) return;
   
-  nameEl.textContent = appState.user.name;
+  // Show custom username if set
+  const displayName = appState.user.username ? `@${appState.user.username}` : appState.user.name;
+  nameEl.textContent = displayName;
+  
   if (appState.role === 'admin') {
-    avatarEl.src = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${appState.user.name}`;
+    avatarEl.src = appState.user.avatar || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${appState.user.name}`;
     roleEl.textContent = 'Administrator Portal';
   } else if (appState.role === 'student') {
-    avatarEl.src = 'picture/avatar_student.jpg';
+    avatarEl.src = appState.user.avatar || 'picture/avatar_student.jpg';
     roleEl.textContent = `${appState.user.department || 'Computer Science'} Student`;
   } else {
-    avatarEl.src = 'picture/avatar_lecturer.jpg';
+    avatarEl.src = appState.user.avatar || 'picture/avatar_lecturer.jpg';
     roleEl.textContent = `Faculty Member • ${appState.user.office || 'Block C'}`;
   }
 }
@@ -1353,7 +1360,7 @@ function renderStudentCourses() {
             </div>
             <span>${course.instructor}</span>
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="switchTab('student', 'student-chat')">Contact</button>
+          <button class="btn btn-secondary btn-sm" onclick="switchTab('student', 'student-contacts')" title="Message or book a video consultation with this lecturer">Contact</button>
         </div>
       </div>
     `;
@@ -1376,8 +1383,8 @@ function renderStudentNotes() {
           <span style="font-size:0.75rem; color:var(--text-light)">Uploaded on ${note.date} • ${note.size}</span>
         </div>
         <div style="display:flex; gap:8px;">
-          <button class="btn btn-secondary btn-sm" onclick="simulateSummarizeNote('${note.title}')">AI Summarize</button>
-          <a class="btn btn-primary btn-sm" href="${note.fileUrl}" target="_blank" download>Download</a>
+          <button class="btn btn-secondary btn-sm" onclick="simulateSummarizeNote('${note.title}')" title="Request immediate AI summary overview of these lecture notes">AI Summarize</button>
+          <a class="btn btn-primary btn-sm" href="${note.fileUrl || '#'}" target="_blank" download title="Download this PDF slide document to your device">Download</a>
         </div>
       </div>
     `;
@@ -1397,7 +1404,7 @@ function renderStudentAssignments() {
     
     if (asg.status === 'Pending') {
       statusBadge = '<span class="badge badge-warning">Pending</span>';
-      actionHtml = `<button class="btn btn-primary btn-sm" onclick="openSubmitAssignmentModal(${asg.id}, '${asg.title}')">Submit File</button>`;
+      actionHtml = `<button class="btn btn-primary btn-sm" onclick="openSubmitAssignmentModal(${asg.id}, '${asg.title}')" title="Upload and submit your final work for grading">Submit File</button>`;
     } else {
       statusBadge = `<span class="badge badge-success">Submitted</span>`;
       if (asg.grade) {
@@ -3004,12 +3011,14 @@ function updateApiStatusBadge(status) {
 function toggleTheme() {
   const activeTheme = document.body.getAttribute('data-theme');
   if (activeTheme === 'dark') {
-    document.body.removeAttribute('data-theme');
+    document.body.setAttribute('data-theme', 'light');
     appState.theme = 'light';
+    localStorage.setItem('smartlearn_theme', 'light');
     document.querySelectorAll('.theme-toggle').forEach(btn => btn.innerHTML = '🌙');
   } else {
     document.body.setAttribute('data-theme', 'dark');
     appState.theme = 'dark';
+    localStorage.setItem('smartlearn_theme', 'dark');
     document.querySelectorAll('.theme-toggle').forEach(btn => btn.innerHTML = '☀️');
   }
 }
@@ -3202,11 +3211,119 @@ function closeLandingMenu() {
   }
 }
 
+/* ==========================================================================
+   USER PROFILE SETTINGS & UPLOAD ENGINE
+   ========================================================================== */
+
+function prepopulateUserSettings(role) {
+  if (!appState.user) return;
+  
+  if (role === 'student') {
+    document.getElementById('settings-student-name').value = appState.user.name || '';
+    document.getElementById('settings-student-username').value = appState.user.username || '';
+    document.getElementById('settings-student-dept').value = appState.user.department || '';
+    document.getElementById('settings-student-idnum').value = appState.user.studentIdNumber || '';
+    document.getElementById('settings-student-avatar-preview').src = appState.user.avatar || 'picture/avatar_student.jpg';
+  } else if (role === 'lecturer') {
+    document.getElementById('settings-lecturer-name').value = appState.user.name || '';
+    document.getElementById('settings-lecturer-username').value = appState.user.username || '';
+    document.getElementById('settings-lecturer-office').value = appState.user.office || '';
+    document.getElementById('settings-lecturer-avatar-preview').src = appState.user.avatar || 'picture/avatar_lecturer.jpg';
+  }
+}
+
+function saveUserSettings(role) {
+  if (!appState.user) return;
+  
+  if (role === 'student') {
+    appState.user.name = document.getElementById('settings-student-name').value;
+    appState.user.username = document.getElementById('settings-student-username').value;
+    appState.user.department = document.getElementById('settings-student-dept').value;
+    appState.user.studentIdNumber = document.getElementById('settings-student-idnum').value;
+  } else if (role === 'lecturer') {
+    appState.user.name = document.getElementById('settings-lecturer-name').value;
+    appState.user.username = document.getElementById('settings-lecturer-username').value;
+    appState.user.office = document.getElementById('settings-lecturer-office').value;
+  }
+  
+  // Persist back to local simulated users list
+  const users = getSimulatedUsers();
+  const userIdx = users.findIndex(u => u.email === appState.user.email);
+  if (userIdx !== -1) {
+    users[userIdx] = { ...users[userIdx], ...appState.user };
+    saveSimulatedUsers(users);
+  }
+  
+  // Also save offline state
+  saveOfflineState();
+  
+  // Update sidebar info in real-time
+  updateSidebarDetails();
+  
+  showToastNotification('Profile updated successfully!');
+}
+
+function handleAvatarUpload(input, role) {
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image is too large. Max size is 5MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const base64String = e.target.result;
+      document.getElementById('settings-' + role + '-avatar-preview').src = base64String;
+      appState.user.avatar = base64String;
+      
+      // Save locally inside simulated database
+      const users = getSimulatedUsers();
+      const userIdx = users.findIndex(u => u.email === appState.user.email);
+      if (userIdx !== -1) {
+        users[userIdx].avatar = base64String;
+        saveSimulatedUsers(users);
+      }
+      saveOfflineState();
+      updateSidebarDetails();
+      showToastNotification('Profile photo uploaded successfully!');
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+/* ==========================================================================
+   AUTO-LOGOUT INACTIVITY TIMER
+   ========================================================================== */
+let inactivityTimer;
+const INACTIVITY_LIMIT = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+function resetInactivityTimer() {
+  if (inactivityTimer) clearTimeout(inactivityTimer);
+  
+  if (appState.user) {
+    inactivityTimer = setTimeout(() => {
+      if (appState.user) {
+        showToastNotification("You have been logged out due to inactivity.");
+        handlePrototypeLogout();
+      }
+    }, INACTIVITY_LIMIT);
+  }
+}
+
+// Add event listeners for inactivity tracking on DOM load
+['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll', 'click'].forEach(event => {
+  window.addEventListener(event, resetInactivityTimer, { passive: true });
+});
+
 // Initialise Application Function
 function initApplication() {
   // Setup default theme
-  document.body.setAttribute('data-theme', 'dark');
-  document.querySelectorAll('.theme-toggle').forEach(btn => btn.innerHTML = '☀️');
+  const savedTheme = localStorage.getItem('smartlearn_theme') || 'light';
+  document.body.setAttribute('data-theme', savedTheme);
+  appState.theme = savedTheme;
+  document.querySelectorAll('.theme-toggle').forEach(btn => {
+    btn.innerHTML = savedTheme === 'dark' ? '☀️' : '🌙';
+  });
   
   // Fetch public universities list for landing page click details
   fetchPublicUniversities();
@@ -3222,6 +3339,9 @@ function initApplication() {
   
   // Setup default Career test slide
   resetCareerQuiz();
+  
+  // Setup inactivity timer
+  resetInactivityTimer();
 }
 
 // Initialise application robustly based on document loading state
