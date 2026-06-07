@@ -573,6 +573,12 @@ function switchTab(role, tabId) {
   } else {
     appState.activeLecturerTab = tabId;
   }
+
+  // Close sidebar on mobile after choosing item
+  const sidebar = document.querySelector('aside.portal-sidebar');
+  if (sidebar) {
+    sidebar.classList.remove('open');
+  }
 }
 
 const API_BASE = 'http://localhost:5000';
@@ -2761,6 +2767,27 @@ function handleCheckCareerMatchClick() {
   } else {
     navigateTo('portal-shell');
     switchTab('student', 'student-career-guidance');
+  }
+}
+
+function toggleMobileSidebar() {
+  const sidebar = document.querySelector('aside.portal-sidebar');
+  if (sidebar) {
+    sidebar.classList.toggle('open');
+  }
+}
+
+function toggleLandingMenu() {
+  const navLinks = document.querySelector('.nav-links');
+  if (navLinks) {
+    navLinks.classList.toggle('open');
+  }
+}
+
+function closeLandingMenu() {
+  const navLinks = document.querySelector('.nav-links');
+  if (navLinks) {
+    navLinks.classList.remove('open');
   }
 }
 

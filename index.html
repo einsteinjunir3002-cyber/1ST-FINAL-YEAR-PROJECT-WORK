@@ -25,14 +25,15 @@
           <span class="gradient-text">SmartLearn AI</span>
         </a>
         <ul class="nav-links">
-          <li><a href="#features" class="nav-link">Features</a></li>
-          <li><a href="#universities" class="nav-link">Ghana Universities</a></li>
-          <li><a href="#testimonials" class="nav-link">Testimonials</a></li>
-          <li><a href="#announcements" class="nav-link">Announcements</a></li>
+          <li><a href="#features" class="nav-link" onclick="closeLandingMenu()">Features</a></li>
+          <li><a href="#universities" class="nav-link" onclick="closeLandingMenu()">Ghana Universities</a></li>
+          <li><a href="#testimonials" class="nav-link" onclick="closeLandingMenu()">Testimonials</a></li>
+          <li><a href="#announcements" class="nav-link" onclick="closeLandingMenu()">Announcements</a></li>
         </ul>
         <div class="header-actions">
           <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
           <button class="btn btn-primary btn-sm" onclick="openAuthModal()">Enter Portal 🚀</button>
+          <button class="action-icon-btn mobile-only" onclick="toggleLandingMenu()" style="display: none; font-size: 1.25rem;">☰</button>
         </div>
       </div>
     </header>
@@ -332,6 +333,9 @@
       
       <!-- Top Action Navigation Bar -->
       <div class="portal-navbar">
+        <button class="action-icon-btn mobile-only" id="sidebar-toggle-btn" onclick="toggleMobileSidebar()" style="display: none; margin-right: 12px; font-size: 1.25rem;">
+          ☰
+        </button>
         <div class="portal-search-bar">
           🔍 <input type="text" placeholder="Search courses, past questions, careers...">
         </div>

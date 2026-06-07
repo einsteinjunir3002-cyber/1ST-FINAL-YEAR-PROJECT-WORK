@@ -1415,15 +1415,33 @@ table.custom-table th {
   }
   .portal-navbar {
     padding: 0 16px;
+    justify-content: flex-start;
+    gap: 8px;
   }
   .portal-search-bar {
-    width: 180px;
+    width: 160px;
   }
   .metrics-row {
     grid-template-columns: 1fr;
   }
   .nav-links {
     display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 80px;
+    left: 0;
+    width: 100%;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border);
+    padding: 24px;
+    gap: 16px;
+    z-index: 99;
+  }
+  .nav-links.open {
+    display: flex;
+  }
+  .mobile-only {
+    display: flex !important;
   }
   .ai-chat-layout {
     grid-template-columns: 1fr;
