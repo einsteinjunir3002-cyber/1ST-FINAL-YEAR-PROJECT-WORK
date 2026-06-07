@@ -3231,3 +3231,18 @@ if (document.readyState === 'loading') {
   initApplication();
 }
 
+function togglePasswordVisibility(inputId, btnEl) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  if (input.type === 'password') {
+    input.type = 'text';
+    btnEl.textContent = '🙈';
+    btnEl.style.color = 'var(--primary)';
+  } else {
+    input.type = 'password';
+    btnEl.textContent = '👁️';
+    btnEl.style.color = 'var(--text-muted)';
+  }
+}
+
+
