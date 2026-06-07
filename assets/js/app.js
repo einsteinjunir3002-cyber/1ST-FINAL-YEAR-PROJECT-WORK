@@ -1044,9 +1044,7 @@ async function fetchStateData() {
   }
 }
 
-async function renderStateData() {
-  await fetchStateData();
-
+function renderAllComponents() {
   // 1. Render Student Dashboard Courses & materials
   renderStudentCourses();
   renderStudentNotes();
@@ -1067,6 +1065,20 @@ async function renderStateData() {
 
   // 6. Render Dynamic Universities Hub
   renderStudentUniversities();
+}
+
+async function renderStateData() {
+  // Render local simulated state data immediately
+  renderAllComponents();
+
+  // Fetch updated data from backend asynchronously
+  try {
+    await fetchStateData();
+    // Re-render components with the updated data
+    renderAllComponents();
+  } catch (err) {
+    console.error('Error fetching state data:', err);
+  }
 }
 
 // Render student courses list
@@ -2611,6 +2623,9 @@ function showToastNotification(message) {
 }
 
 async function fetchPublicUniversities() {
+  // Render static fallback universities immediately
+  renderLandingUniversities();
+  
   try {
     const res = await fetch(`${API_BASE}/api/universities`);
     if (res.ok) {
@@ -2764,8 +2779,8 @@ function adjustScale() {
 window.addEventListener('resize', adjustScale);
 window.addEventListener('load', adjustScale);
 
-// Initialise Application
-document.addEventListener('DOMContentLoaded', () => {
+// Initialise Application Function
+function initApplication() {
   // Apply scaling immediately
   adjustScale();
 
@@ -2787,5 +2802,12 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Setup default Career test slide
   resetCareerQuiz();
-});
+}
+
+// Initialise application robustly based on document loading state
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApplication);
+} else {
+  initApplication();
+}
 
