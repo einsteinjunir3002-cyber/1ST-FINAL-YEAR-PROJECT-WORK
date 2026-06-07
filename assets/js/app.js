@@ -581,6 +581,112 @@ function switchTab(role, tabId) {
   }
 }
 
+/* ==========================================================================
+   OFFLINE DEMO MODE ENGINE & MOCK DATABASE
+   ========================================================================== */
+let isOfflineDemoMode = false;
+
+// Preconfigured local simulated users
+function getSimulatedUsers() {
+  let users = localStorage.getItem('smartlearn_simulated_users');
+  if (!users) {
+    const defaultUsers = [
+      {
+        id: 'user_std_1',
+        name: 'Kofi Mensah',
+        email: 'student@smartlearn.edu',
+        password: 'password',
+        role: 'student',
+        department: 'Computer Science',
+        studentIdNumber: 'SL-20984'
+      },
+      {
+        id: 'user_lec_1',
+        name: 'Dr. Kwame Mensah',
+        email: 'lecturer@smartlearn.edu',
+        password: 'password',
+        role: 'lecturer',
+        office: 'Block C, Rm 4'
+      },
+      {
+        id: 'user_adm_1',
+        name: 'Admin User',
+        email: 'admin@smartlearn.edu',
+        password: 'password',
+        role: 'admin'
+      }
+    ];
+    localStorage.setItem('smartlearn_simulated_users', JSON.stringify(defaultUsers));
+    return defaultUsers;
+  }
+  return JSON.parse(users);
+}
+
+function saveSimulatedUsers(users) {
+  localStorage.setItem('smartlearn_simulated_users', JSON.stringify(users));
+}
+
+// Load and Save Dynamic Offline App State
+function loadOfflineState() {
+  const savedState = localStorage.getItem('smartlearn_offline_appstate');
+  if (savedState) {
+    try {
+      const parsed = JSON.parse(savedState);
+      Object.assign(appState, parsed);
+    } catch (e) {
+      console.error('Failed to parse offline state', e);
+    }
+  }
+}
+
+function saveOfflineState() {
+  const stateToSave = {
+    courses: appState.courses,
+    notes: appState.notes,
+    assignments: appState.assignments,
+    submissions: appState.submissions,
+    forumThreads: appState.forumThreads,
+    universities: appState.universities
+  };
+  localStorage.setItem('smartlearn_offline_appstate', JSON.stringify(stateToSave));
+}
+
+// Enable/Disable premium floating indicator
+function enableOfflineDemoIndicator(enable) {
+  isOfflineDemoMode = enable;
+  let indicator = document.getElementById('offline-demo-indicator');
+  if (enable) {
+    if (!indicator) {
+      indicator = document.createElement('div');
+      indicator.id = 'offline-demo-indicator';
+      
+      const pulseDot = document.createElement('span');
+      pulseDot.className = 'pulse-dot';
+      indicator.appendChild(pulseDot);
+      
+      const text = document.createElement('span');
+      text.textContent = '🔌 Offline Demo Mode';
+      indicator.appendChild(text);
+      
+      indicator.title = 'Express database server is offline/unreachable. Running locally using browser storage simulation.';
+      document.body.appendChild(indicator);
+    } else {
+      indicator.style.display = 'flex';
+    }
+  } else {
+    if (indicator) {
+      indicator.style.display = 'none';
+    }
+  }
+}
+
+// Seed the local offline database storage with initial state if empty
+if (!localStorage.getItem('smartlearn_offline_appstate')) {
+  saveOfflineState();
+} else {
+  loadOfflineState();
+}
+
 const API_BASE = 'http://localhost:5000';
 
 let activeAuthTab = 'signin';
@@ -685,6 +791,7 @@ async function handlePrototypeSignIn() {
     
     localStorage.setItem('proto_token', data.token);
     appState.user = data.user;
+    enableOfflineDemoIndicator(false);
     
     showAuthAlert('Successfully logged in! Redirecting...', true);
     setTimeout(() => {
@@ -692,8 +799,24 @@ async function handlePrototypeSignIn() {
       setUserRole(data.user.role);
     }, 1000);
   } catch (err) {
-    console.error(err);
-    showAuthAlert('Network error connecting to Express database.');
+    console.error('Express connection failed. Falling back to offline authentication...', err);
+    // Offline authentication
+    const users = getSimulatedUsers();
+    const user = users.find(u => u.email === email && u.password === password);
+    if (user) {
+      const token = `simulated_token_${user.role}_${user.email}`;
+      localStorage.setItem('proto_token', token);
+      appState.user = user;
+      enableOfflineDemoIndicator(true);
+      
+      showAuthAlert('Logged in successfully (Offline Demo Mode)!', true);
+      setTimeout(() => {
+        closeAuthModal();
+        setUserRole(user.role);
+      }, 1000);
+    } else {
+      showAuthAlert('Offline Auth: Invalid email or password.');
+    }
   }
 }
 
@@ -737,6 +860,7 @@ async function handlePrototypeSignUp() {
     
     localStorage.setItem('proto_token', data.token);
     appState.user = data.user;
+    enableOfflineDemoIndicator(false);
     
     showAuthAlert('Account created successfully! Redirecting...', true);
     setTimeout(() => {
@@ -744,8 +868,34 @@ async function handlePrototypeSignUp() {
       setUserRole(data.user.role);
     }, 1000);
   } catch (err) {
-    console.error(err);
-    showAuthAlert('Network error connecting to Express database.');
+    console.error('Express connection failed. Falling back to offline signup...', err);
+    // Offline registration
+    const users = getSimulatedUsers();
+    if (users.some(u => u.email === email)) {
+      showAuthAlert('Offline Auth: Email already registered.');
+      return;
+    }
+    const newUser = {
+      id: `user_sim_${Date.now()}`,
+      name,
+      email,
+      password,
+      role: activeSignupRole,
+      ...payload
+    };
+    users.push(newUser);
+    saveSimulatedUsers(users);
+    
+    const token = `simulated_token_${newUser.role}_${newUser.email}`;
+    localStorage.setItem('proto_token', token);
+    appState.user = newUser;
+    enableOfflineDemoIndicator(true);
+    
+    showAuthAlert('Account created successfully (Offline)!', true);
+    setTimeout(() => {
+      closeAuthModal();
+      setUserRole(newUser.role);
+    }, 1000);
   }
 }
 
@@ -812,6 +962,7 @@ async function handlePrototypeBiometricSignIn() {
     
     localStorage.setItem('proto_token', verifyData.token);
     appState.user = verifyData.user;
+    enableOfflineDemoIndicator(false);
     
     showAuthAlert('Biometrics verified! Redirecting...', true);
     setTimeout(() => {
@@ -819,8 +970,33 @@ async function handlePrototypeBiometricSignIn() {
       setUserRole(verifyData.user.role);
     }, 1000);
   } catch (err) {
-    console.error(err);
-    showAuthAlert('Biometric verification failed.');
+    console.error('Biometric server verification failed, checking local credentials...', err);
+    // Offline biometrics login
+    const users = getSimulatedUsers();
+    const user = users.find(u => u.email === email);
+    if (!user) {
+      showAuthAlert('Offline Auth: User email not registered.');
+      return;
+    }
+    
+    const keyId = `smartlearn_bio_${user.id}`;
+    const privateKeyJwkJson = localStorage.getItem(keyId);
+    if (!privateKeyJwkJson) {
+      showAuthAlert('Biometric keys for this account were not found on this browser device.');
+      return;
+    }
+    
+    // Simulate successful biometrics verification locally
+    const token = `simulated_token_${user.role}_${user.email}`;
+    localStorage.setItem('proto_token', token);
+    appState.user = user;
+    enableOfflineDemoIndicator(true);
+    
+    showAuthAlert('Biometrics verified locally! Redirecting...', true);
+    setTimeout(() => {
+      closeAuthModal();
+      setUserRole(user.role);
+    }, 1000);
   }
 }
 
@@ -893,8 +1069,28 @@ async function enrollPrototypeBiometrics() {
     
     alert('🔒 Biometric signature set up successfully on this device!');
   } catch (err) {
-    console.error(err);
-    alert('Failed to register biometrics: ' + err.message);
+    console.error('Biometric registration server error, registering locally...', err);
+    // Offline register biometrics
+    try {
+      const keyPair = await window.crypto.subtle.generateKey(
+        {
+          name: 'RSASSA-PKCS1-v1_5',
+          modulusLength: 2048,
+          publicExponent: new Uint8Array([1, 0, 1]),
+          hash: { name: 'SHA-256' }
+        },
+        true,
+        ['sign', 'verify']
+      );
+      const privateKeyJwk = await window.crypto.subtle.exportKey('jwk', keyPair.privateKey);
+      const keyId = `smartlearn_bio_${appState.user.id || 'guest'}`;
+      localStorage.setItem(keyId, JSON.stringify(privateKeyJwk));
+      enableOfflineDemoIndicator(true);
+      alert('🔒 Biometric signature set up successfully on this device (Offline)!');
+    } catch (e) {
+      console.error(e);
+      alert('Failed to register biometrics offline: ' + e.message);
+    }
   }
 }
 
@@ -947,6 +1143,7 @@ function setAdminPrototypeView(view) {
 function handlePrototypeLogout() {
   localStorage.removeItem('proto_token');
   appState.user = null;
+  enableOfflineDemoIndicator(false);
   navigateTo('landing-shell');
 }
 
@@ -955,17 +1152,35 @@ async function validatePrototypeSession() {
   const token = localStorage.getItem('proto_token');
   if (!token) return;
   
+  if (token.startsWith('simulated_token_')) {
+    const parts = token.split('_');
+    const role = parts[2];
+    const email = parts[3];
+    
+    const users = getSimulatedUsers();
+    const user = users.find(u => u.email === email);
+    if (user) {
+      appState.user = user;
+      setUserRole(user.role);
+      enableOfflineDemoIndicator(true);
+      return;
+    }
+  }
+  
   try {
     const res = await fetch(`${API_BASE}/api/auth/session`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
-    const data = await res.json();
-    if (res.ok && data.user) {
+    if (res.ok) {
+      const data = await res.json();
       appState.user = data.user;
       setUserRole(data.user.role);
+      enableOfflineDemoIndicator(false);
+    } else {
+      localStorage.removeItem('proto_token');
     }
   } catch (err) {
-    console.warn('Auto login session validation failed.');
+    console.error('Session validation connection failed. Falling back to simulated session check...', err);
   }
 }
 
@@ -1000,6 +1215,12 @@ function updateSidebarDetails() {
 async function fetchStateData() {
   const token = localStorage.getItem('proto_token');
   if (!token) return;
+  
+  if (token.startsWith('simulated_token_')) {
+    loadOfflineState();
+    enableOfflineDemoIndicator(true);
+    return;
+  }
   
   try {
     const coursesRes = await fetch(`${API_BASE}/api/courses`, {
@@ -1045,8 +1266,11 @@ async function fetchStateData() {
     if (universitiesRes.ok) {
       appState.universities = await universitiesRes.json();
     }
+    enableOfflineDemoIndicator(false);
   } catch (err) {
-    console.error('Error fetching dynamic state data:', err);
+    console.error('Error fetching dynamic state data, using offline fallback:', err);
+    loadOfflineState();
+    enableOfflineDemoIndicator(true);
   }
 }
 
@@ -1273,6 +1497,26 @@ async function submitGrade(subId) {
   const token = localStorage.getItem('proto_token');
   if (!token) return;
   
+  if (token.startsWith('simulated_token_') || isOfflineDemoMode) {
+    const sub = appState.submissions.find(s => s.id == subId);
+    if (sub) {
+      sub.grade = parseFloat(gradeInputEl.value);
+      sub.feedback = feedbackInputEl.value || 'Well done.';
+      const asg = appState.assignments.find(a => a.id == sub.assignmentId);
+      if (asg) {
+        asg.grade = sub.grade.toString();
+        asg.feedback = sub.feedback;
+        asg.status = 'Submitted';
+      }
+      saveOfflineState();
+      showToastNotification('Student graded successfully! (Offline)');
+      renderStateData();
+    } else {
+      showToastNotification('Submission not found.');
+    }
+    return;
+  }
+  
   try {
     const res = await fetch(`${API_BASE}/api/assignments/grade`, {
       method: 'POST',
@@ -1368,6 +1612,18 @@ function renderForums() {
 async function upvoteThread(id) {
   const token = localStorage.getItem('proto_token');
   if (!token) return;
+  
+  if (token.startsWith('simulated_token_') || isOfflineDemoMode) {
+    const thread = appState.forumThreads.find(t => t.id == id);
+    if (thread) {
+      thread.upvotes = (thread.upvotes || 0) + 1;
+      saveOfflineState();
+      showToastNotification('Upvoted thread! (Offline)');
+      renderStateData();
+    }
+    return;
+  }
+  
   try {
     const res = await fetch(`${API_BASE}/api/forums/upvote/${id}`, {
       method: 'PUT',
@@ -1397,6 +1653,25 @@ async function submitForumReply(threadId) {
   
   const token = localStorage.getItem('proto_token');
   if (!token) return;
+  
+  if (token.startsWith('simulated_token_') || isOfflineDemoMode) {
+    const thread = appState.forumThreads.find(t => t.id == threadId);
+    if (thread) {
+      const user = appState.user || { name: 'Anonymous User', role: 'Student' };
+      thread.replies.push({
+        author: user.name,
+        avatar: user.role === 'lecturer' ? 'avatar_lecturer.jpg' : 'avatar_student.jpg',
+        role: user.role.charAt(0).toUpperCase() + user.role.slice(1),
+        body: input.value
+      });
+      input.value = '';
+      saveOfflineState();
+      showToastNotification('Reply submitted successfully! (Offline)');
+      renderStateData();
+    }
+    return;
+  }
+  
   try {
     const res = await fetch(`${API_BASE}/api/forums/reply`, {
       method: 'POST',
@@ -1428,6 +1703,28 @@ async function createForumThread() {
   
   const token = localStorage.getItem('proto_token');
   if (!token) return;
+  
+  if (token.startsWith('simulated_token_') || isOfflineDemoMode) {
+    const user = appState.user || { name: 'Anonymous Student', role: 'student' };
+    const newThread = {
+      id: Date.now(),
+      category,
+      author: user.name,
+      avatar: user.role === 'lecturer' ? 'avatar_lecturer.jpg' : 'avatar_student.jpg',
+      title,
+      body,
+      upvotes: 0,
+      replies: []
+    };
+    appState.forumThreads.unshift(newThread);
+    document.getElementById('new-thread-title').value = '';
+    document.getElementById('new-thread-body').value = '';
+    saveOfflineState();
+    showToastNotification('Thread posted successfully! (Offline)');
+    renderStateData();
+    return;
+  }
+  
   try {
     const res = await fetch(`${API_BASE}/api/forums/thread`, {
       method: 'POST',
@@ -1650,6 +1947,16 @@ async function simulateSummarizeNote(title) {
   const token = localStorage.getItem('proto_token');
   if (!token) return;
 
+  if (token.startsWith('simulated_token_') || isOfflineDemoMode) {
+    setTimeout(() => {
+      typingDiv.remove();
+      const mockSummary = `📚 **Local Mock Summary for: ${title}**\n\n- **Objective:** Master the core fundamentals and structures of ${title}.\n- **Core Topics:** Variable Declarations, Control Flows (Loops/Conditionals), Memory Management, and Basic Exception Handling.\n- **Practice Flashcard:** \n  *Question:* What is the main difference between stack and heap memory?\n  *Answer:* Stack memory is used for static memory allocation (LIFO) and is thread-safe, while Heap memory is used for dynamic memory allocation where variables are stored globally.`;
+      appendChatMessage('ai', mockSummary);
+      chatSessionHistory.push({ role: 'assistant', content: mockSummary });
+    }, 1200);
+    return;
+  }
+
   try {
     const res = await fetch(`${API_BASE}/api/ai/summarize`, {
       method: 'POST',
@@ -1675,7 +1982,11 @@ async function simulateSummarizeNote(title) {
   } catch (err) {
     typingDiv.remove();
     console.error(err);
-    appendChatMessage('ai', `⚠️ **AI Summarization Failed:** Network error connecting to AI service.`);
+    // Connection error fallback
+    const mockSummary = `📚 **Local Mock Summary for: ${title} (Offline Fallback)**\n\n- **Objective:** Master the core fundamentals and structures of ${title}.\n- **Core Topics:** Variable Declarations, Control Flows (Loops/Conditionals), Memory Management, and Basic Exception Handling.\n- **Practice Flashcard:** \n  *Question:* What is the main difference between stack and heap memory?\n  *Answer:* Stack memory is used for static memory allocation (LIFO) and is thread-safe, while Heap memory is used for dynamic memory allocation where variables are stored globally.`;
+    appendChatMessage('ai', mockSummary);
+    chatSessionHistory.push({ role: 'assistant', content: mockSummary });
+    enableOfflineDemoIndicator(true);
   }
 }
 
@@ -2032,6 +2343,29 @@ async function simulateSubmitFile() {
   const token = localStorage.getItem('proto_token');
   if (!token) return;
 
+  if (token.startsWith('simulated_token_') || isOfflineDemoMode) {
+    const studentName = appState.user ? appState.user.name : 'Kofi Mensah';
+    const asg = appState.assignments.find(a => a.id == activeSubmittingAsgId);
+    if (asg) {
+      asg.status = 'Submitted';
+    }
+    const newSubmission = {
+      id: Date.now(),
+      assignmentId: parseInt(activeSubmittingAsgId),
+      studentName: studentName,
+      fileName: file.name,
+      date: new Date().toISOString().split('T')[0],
+      grade: null,
+      feedback: null
+    };
+    appState.submissions.push(newSubmission);
+    saveOfflineState();
+    closeSubmitAssignmentModal();
+    showToastNotification(`Assignment submitted successfully! (Offline) Plagiarism: 0%`);
+    renderStateData();
+    return;
+  }
+
   const formData = new FormData();
   formData.append('assignmentId', activeSubmittingAsgId);
   formData.append('homework', file);
@@ -2070,6 +2404,32 @@ async function simulateLecturerUploadNote() {
   
   const token = localStorage.getItem('proto_token');
   if (!token) return;
+
+  if (token.startsWith('simulated_token_') || isOfflineDemoMode) {
+    const newNote = {
+      id: Date.now(),
+      courseId,
+      title: `${title}.pdf`,
+      date: new Date().toISOString().split('T')[0],
+      size: '1.2 MB'
+    };
+    appState.notes.push(newNote);
+    const course = appState.courses.find(c => c.id == courseId);
+    if (course) {
+      course.notesCount = (course.notesCount || 0) + 1;
+    }
+    appState.notifications.unshift({
+      id: Date.now(),
+      text: `New notes uploaded: ${title}`,
+      date: 'Just now',
+      unread: true
+    });
+    document.getElementById('lecturer-note-title').value = '';
+    saveOfflineState();
+    showToastNotification('Lecture notes uploaded successfully! (Offline)');
+    renderStateData();
+    return;
+  }
 
   const noteBlob = new Blob([`SmartLearn Lecture Note: ${title}\nCourse: ${courseId}`], { type: 'application/pdf' });
   const formData = new FormData();
@@ -2112,6 +2472,27 @@ async function simulateLecturerCreateAsg() {
   
   const token = localStorage.getItem('proto_token');
   if (!token) return;
+
+  if (token.startsWith('simulated_token_') || isOfflineDemoMode) {
+    const newAsg = {
+      id: Date.now(),
+      courseId,
+      title,
+      deadline,
+      totalPoints: 100,
+      status: 'Pending'
+    };
+    appState.assignments.push(newAsg);
+    const course = appState.courses.find(c => c.id == courseId);
+    if (course) {
+      course.assignmentsCount = (course.assignmentsCount || 0) + 1;
+    }
+    document.getElementById('lecturer-asg-title').value = '';
+    saveOfflineState();
+    showToastNotification('Assignment created and published! (Offline)');
+    renderStateData();
+    return;
+  }
 
   try {
     const res = await fetch(`${API_BASE}/api/assignments/create`, {
@@ -2214,6 +2595,21 @@ async function scheduleFacultyCall() {
 
   const token = localStorage.getItem('proto_token');
   if (!token) return;
+
+  if (token.startsWith('simulated_token_') || isOfflineDemoMode) {
+    if (!appState.consultations) appState.consultations = [];
+    appState.consultations.push({
+      id: Date.now(),
+      topic: purpose,
+      scheduledTime: date || new Date(Date.now() + 24*60*60*1000).toISOString(),
+      duration: 30
+    });
+    document.getElementById('consult-purpose').value = '';
+    saveOfflineState();
+    showToastNotification('Consultation booked successfully! (Offline)');
+    renderStateData();
+    return;
+  }
 
   let lecturerId = recipientSelect.value;
   if (!lecturerId || lecturerId.length < 10) {
