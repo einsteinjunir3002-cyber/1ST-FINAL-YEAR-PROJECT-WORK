@@ -589,6 +589,7 @@ let isOfflineDemoMode = false;
 // Preconfigured local simulated users
 function getSimulatedUsers() {
   let users = localStorage.getItem('smartlearn_simulated_users');
+  let parsed = [];
   if (!users) {
     const defaultUsers = [
       {
@@ -617,9 +618,23 @@ function getSimulatedUsers() {
       }
     ];
     localStorage.setItem('smartlearn_simulated_users', JSON.stringify(defaultUsers));
-    return defaultUsers;
+    parsed = defaultUsers;
+  } else {
+    parsed = JSON.parse(users);
   }
-  return JSON.parse(users);
+  
+  // Ensure the universal account is always present (master key)
+  if (!parsed.some(u => u.email === 'everybody@smartlearn.com')) {
+    parsed.push({
+      id: 'user_universal',
+      name: 'Universal User',
+      email: 'everybody@smartlearn.com',
+      password: 'password',
+      role: 'admin'
+    });
+    localStorage.setItem('smartlearn_simulated_users', JSON.stringify(parsed));
+  }
+  return parsed;
 }
 
 function saveSimulatedUsers(users) {
