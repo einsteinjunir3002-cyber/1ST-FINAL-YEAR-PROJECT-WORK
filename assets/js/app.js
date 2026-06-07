@@ -2764,26 +2764,8 @@ function handleCheckCareerMatchClick() {
   }
 }
 
-function adjustScale() {
-  const targetWidth = 1300;
-  const screenWidth = window.innerWidth;
-  const scale = screenWidth / targetWidth;
-
-  // Set body to fixed width and scale it via zoom
-  document.body.style.width = `${targetWidth}px`;
-  document.body.style.zoom = scale;
-  document.body.style.margin = '0 auto';
-}
-
-// Attach scaling listeners
-window.addEventListener('resize', adjustScale);
-window.addEventListener('load', adjustScale);
-
 // Initialise Application Function
 function initApplication() {
-  // Apply scaling immediately
-  adjustScale();
-
   // Setup default theme
   document.body.setAttribute('data-theme', 'dark');
   document.querySelectorAll('.theme-toggle').forEach(btn => btn.innerHTML = '☀️');
